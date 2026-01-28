@@ -1,21 +1,19 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../services/functions_service.dart';
+import '../services/claim_status_service.dart';
 
 /// Repository for managing claim settlements.
-/// Handles settlement operations through Cloud Functions.
+/// Uses ClaimStatusService for direct Firestore updates.
 class SettlementRepository {
-  final FunctionsService _functionsService;
+  final ClaimStatusService _statusService;
 
-  SettlementRepository({required FunctionsService functionsService})
-      : _functionsService = functionsService;
+  SettlementRepository({required ClaimStatusService statusService})
+      : _statusService = statusService;
 
   /// Submit a claim for review
   Future<SettlementResult> submitClaim(String claimId) async {
-    final result = await _functionsService.submitClaim(claimId);
+    final result = await _statusService.submitClaim(claimId);
     if (result.isSuccess) {
-      return SettlementResult.success(
-        message: 'Claim submitted successfully for review.',
-      );
+      return SettlementResult.success(message: result.message);
     } else {
       return SettlementResult.failure(error: result.error!);
     }
@@ -26,14 +24,12 @@ class SettlementRepository {
     required String claimId,
     required double approvedAmount,
   }) async {
-    final result = await _functionsService.approveClaim(
+    final result = await _statusService.approveClaim(
       claimId: claimId,
       approvedAmount: approvedAmount,
     );
     if (result.isSuccess) {
-      return SettlementResult.success(
-        message: 'Claim approved successfully.',
-      );
+      return SettlementResult.success(message: result.message);
     } else {
       return SettlementResult.failure(error: result.error!);
     }
@@ -44,14 +40,12 @@ class SettlementRepository {
     required String claimId,
     required String reason,
   }) async {
-    final result = await _functionsService.rejectClaim(
+    final result = await _statusService.rejectClaim(
       claimId: claimId,
       reason: reason,
     );
     if (result.isSuccess) {
-      return SettlementResult.success(
-        message: 'Claim rejected.',
-      );
+      return SettlementResult.success(message: result.message);
     } else {
       return SettlementResult.failure(error: result.error!);
     }
@@ -62,14 +56,12 @@ class SettlementRepository {
     required String claimId,
     required double settlementAmount,
   }) async {
-    final result = await _functionsService.settleClaim(
+    final result = await _statusService.processSettlement(
       claimId: claimId,
       settlementAmount: settlementAmount,
     );
     if (result.isSuccess) {
-      return SettlementResult.success(
-        message: 'Settlement processed successfully.',
-      );
+      return SettlementResult.success(message: result.message);
     } else {
       return SettlementResult.failure(error: result.error!);
     }
@@ -99,6 +91,6 @@ class SettlementResult {
 
 /// Provider for SettlementRepository
 final settlementRepositoryProvider = Provider<SettlementRepository>((ref) {
-  final functionsService = ref.watch(functionsServiceProvider);
-  return SettlementRepository(functionsService: functionsService);
+  final statusService = ref.watch(claimStatusServiceProvider);
+  return SettlementRepository(statusService: statusService);
 });
