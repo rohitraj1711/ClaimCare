@@ -1,0 +1,42 @@
+{
+    "firestore": {
+        "rules": "firebase/firestore.rules",
+        "indexes": "firebase/firestore.indexes.json"
+    },
+    "functions": [
+        {
+            "source": "firebase/functions",
+            "codebase": "default",
+            "ignore": [
+                "node_modules",
+                ".git",
+                "firebase-debug.log",
+                "firebase-debug.*.log",
+                "*.local"
+            ]
+        }
+    ],
+    "flutter": {
+        "platforms": {
+            "android": {
+                "default": {
+                    "projectId": "health-management-df4be",
+                    "appId": "1:427159776865:android:a446d8193d14ad9d95c420",
+                    "fileOutput": "android/app/google-services.json"
+                }
+            },
+            "dart": {
+                "lib/firebase_options.dart": {
+                    "projectId": "health-management-df4be",
+                    "configurations": {
+                        "android": "1:427159776865:android:a446d8193d14ad9d95c420",
+                        "ios": "1:427159776865:ios:0bb4dfc317a8a4e395c420",
+                        "macos": "1:427159776865:ios:0bb4dfc317a8a4e395c420",
+                        "web": "1:427159776865:web:d97287145d19360195c420",
+                        "windows": "1:427159776865:web:5d7160569696d57295c420"
+                    }
+                }
+            }
+        }
+    }
+}
