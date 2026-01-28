@@ -225,6 +225,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         // Status filter
         Expanded(
           child: DropdownButtonFormField<String?>(
+            isExpanded: true,
             value: _selectedStatus,
             decoration: const InputDecoration(
               labelText: 'Status',

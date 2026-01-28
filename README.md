@@ -266,7 +266,7 @@ To populate sample data, you can use the Firebase console or create a script:
 // Example claim document
 {
   patientName: "John Doe",
-  policyNumber: "POL-2024-001234",
+  policyNumber: "POL-2026-001234",
   hospitalName: "City General Hospital",
   admissionDate: Timestamp.now(),
   status: "DRAFT",
@@ -312,18 +312,7 @@ Build with environment variables:
 flutter build web --dart-define=PRODUCTION=true
 ```
 
-## 📝 License
 
-This project is for educational/demonstration purposes.
 
-## 🤝 Contributing
 
-1. Fork the repository
-2. Create your feature branch
-3. Commit your changes
-4. Push to the branch
-5. Open a Pull Request
 
----
-
-Built with ❤️ for healthcare workflow management

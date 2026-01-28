@@ -525,7 +525,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     return Column(
       children: [
         Text(
-          '© 2024 ClaimCare. All rights reserved.',
+          '© 2026 ClaimCare. All rights reserved.',
           style: TextStyle(
             fontSize: 12,
             color: Colors.grey[500],
