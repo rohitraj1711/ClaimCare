@@ -33,7 +33,7 @@
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png" />
+  <link rel="icon" type="image/png" href="favicon.png">
 
   <title>ClaimCare - Insurance Claim Management</title>
   <link rel="manifest" href="manifest.json">
@@ -44,21 +44,36 @@
       margin: 0;
       padding: 0;
       background-color: #f8fafc;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     }
 
     .loading-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 100vh;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #ffffff;
+      z-index: 9999;
+      transition: opacity 0.5s ease-out;
+    }
+
+    .loading-logo {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 24px;
+      border-radius: 20px;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
     }
 
     .loading-spinner {
-      width: 48px;
-      height: 48px;
-      border: 4px solid #e2e8f0;
+      width: 40px;
+      height: 40px;
+      border: 3px solid #e2e8f0;
       border-top-color: #2563eb;
       border-radius: 50%;
       animation: spin 1s linear infinite;
@@ -73,25 +88,71 @@
     .loading-text {
       margin-top: 16px;
       color: #64748b;
-      font-size: 14px;
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+    }
+
+    /* Hide native splash since we use our own */
+    #splash {
+      display: none !important;
     }
   </style>
+  <style id="splash-screen-style">
+    /* Native splash styles kept but hidden via ID above */
+    html {
+      height: 100%
+    }
+
+    body {
+      margin: 0;
+      min-height: 100%;
+      background-color: #FFFFFF;
+      background-size: 100% 100%;
+    }
+  </style>
+  <script id="splash-screen-script">
+    function removeSplashFromWeb() {
+      document.getElementById("splash")?.remove();
+      document.getElementById("splash-branding")?.remove();
+      document.body.style.background = "transparent";
+    }
+  </script>
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
 </head>
 
 <body>
-  <!-- Loading indicator while Flutter loads -->
+  <!-- Native splash hidden via CSS -->
+  <picture id="splash">
+    <source
+      srcset="splash/img/light-1x.png 1x, splash/img/light-2x.png 2x, splash/img/light-3x.png 3x, splash/img/light-4x.png 4x"
+      media="(prefers-color-scheme: light)">
+    <source
+      srcset="splash/img/dark-1x.png 1x, splash/img/dark-2x.png 2x, splash/img/dark-3x.png 3x, splash/img/dark-4x.png 4x"
+      media="(prefers-color-scheme: dark)">
+    <img class="center" aria-hidden="true" src="splash/img/light-1x.png" alt="">
+  </picture>
+
+  <!-- Custom Loading Overlay -->
   <div class="loading-container" id="loading">
+    <img src="icons/Icon-192.png" alt="ClaimCare Logo" class="loading-logo"
+      onerror="this.src='splash/img/light-2x.png'">
     <div class="loading-spinner"></div>
-    <p class="loading-text">Loading ClaimCare...</p>
+    <p class="loading-text">Starting ClaimCare...</p>
   </div>
 
   <script>
     // Remove loading indicator when Flutter is ready
     window.addEventListener('flutter-first-frame', function () {
-      document.getElementById('loading').style.display = 'none';
+      document.getElementById('loading').style.opacity = '0';
+      setTimeout(() => {
+        document.getElementById('loading').remove();
+      }, 500);
     });
   </script>
-  <script src="flutter_bootstrap.js" async></script>
+  <script src="flutter_bootstrap.js" async=""></script>
+
+
 </body>
 
 </html>

@@ -3,11 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/utils/validators.dart';
-import '../../../core/widgets/loading_overlay.dart';
+import '../../../core/utils/responsive.dart';
 import '../../../services/auth_service.dart';
 
 /// Authentication screen for the ClaimCare application.
-/// Supports login, signup, and Google sign-in.
+/// Fully responsive design for mobile, tablet, and desktop.
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
@@ -15,18 +15,35 @@ class LoginScreen extends ConsumerStatefulWidget {
   ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends ConsumerState<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen>
+    with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _nameController = TextEditingController();
-  
+
   bool _isLoading = false;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   bool _isSignUpMode = false;
   String? _errorMessage;
+
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
+    );
+    _animationController.forward();
+  }
 
   @override
   void dispose() {
@@ -34,6 +51,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     _nameController.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
@@ -55,13 +73,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     try {
       final authService = ref.read(authServiceProvider);
-      
+
       if (_isSignUpMode) {
         await authService.createUserWithEmailAndPassword(
           email: _emailController.text,
           password: _passwordController.text,
-          displayName: _nameController.text.trim().isNotEmpty 
-              ? _nameController.text.trim() 
+          displayName: _nameController.text.trim().isNotEmpty
+              ? _nameController.text.trim()
               : null,
         );
       } else {
@@ -100,7 +118,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     try {
       final authService = ref.read(authServiceProvider);
       final result = await authService.signInWithGoogle();
-      
+
       if (result != null && mounted) {
         context.go('/dashboard');
       }
@@ -123,425 +141,639 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDesktop = Responsive.isDesktop(context);
+    final isMobile = Responsive.isMobile(context);
+
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: LoadingOverlay(
-        isLoading: _isLoading,
-        message: _isSignUpMode ? 'Creating account...' : 'Signing in...',
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 420),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _buildHeader(),
-                  const SizedBox(height: 48),
-                  _buildAuthCard(),
-                  const SizedBox(height: 24),
-                  _buildFooter(),
-                ],
-              ),
-            ),
-          ),
+      body: SafeArea(
+        child: FadeTransition(
+          opacity: _fadeAnimation,
+          child: isDesktop
+              ? _buildDesktopLayout()
+              : isMobile
+                  ? _buildMobileLayout()
+                  : _buildTabletLayout(),
         ),
       ),
     );
   }
 
-  Widget _buildHeader() {
-    return Column(
+  /// Desktop: Two-column layout with branding on left
+  Widget _buildDesktopLayout() {
+    return Row(
       children: [
-        // Logo
-        Container(
-          width: 80,
-          height: 80,
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [AppColors.primary, AppColors.primaryDark],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.primary.withValues(alpha: 0.3),
-                blurRadius: 20,
-                offset: const Offset(0, 8),
+        // Left panel - branding
+        Expanded(
+          flex: 5,
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  AppColors.primary,
+                  AppColors.primaryDark.withValues(alpha: 0.9),
+                ],
               ),
-            ],
-          ),
-          child: const Icon(
-            Icons.local_hospital,
-            size: 40,
-            color: Colors.white,
+            ),
+            child: Stack(
+              children: [
+                // Decorative elements
+                Positioned(
+                  top: -100,
+                  left: -100,
+                  child: Container(
+                    width: 300,
+                    height: 300,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white.withValues(alpha: 0.05),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  bottom: -50,
+                  right: -50,
+                  child: Container(
+                    width: 200,
+                    height: 200,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white.withValues(alpha: 0.05),
+                    ),
+                  ),
+                ),
+                // Content
+                Padding(
+                  padding: const EdgeInsets.all(60),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Logo
+                      Container(
+                        width: 72,
+                        height: 72,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                        child: const Icon(
+                          Icons.local_hospital_rounded,
+                          size: 36,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 40),
+                      const Text(
+                        'ClaimCare',
+                        style: TextStyle(
+                          fontSize: 48,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                          letterSpacing: -1,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Streamline your insurance claims\nwith our modern management solution.',
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.white.withValues(alpha: 0.85),
+                          height: 1.6,
+                        ),
+                      ),
+                      const SizedBox(height: 48),
+                      _buildFeatureItem(Icons.speed_rounded, 'Fast Processing'),
+                      const SizedBox(height: 16),
+                      _buildFeatureItem(Icons.security_rounded, 'Secure & Compliant'),
+                      const SizedBox(height: 16),
+                      _buildFeatureItem(Icons.insights_rounded, 'Real-time Tracking'),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-        const SizedBox(height: 24),
-        // App name
-        const Text(
-          'ClaimCare',
-          style: TextStyle(
-            fontSize: 32,
-            fontWeight: FontWeight.bold,
-            color: AppColors.primary,
-            letterSpacing: -0.5,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Insurance Claim Management System',
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey[600],
+        // Right panel - auth form
+        Expanded(
+          flex: 4,
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 40),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 440),
+                child: _buildAuthForm(),
+              ),
+            ),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildAuthCard() {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: const BorderSide(color: AppColors.border),
+  Widget _buildFeatureItem(IconData icon, String text) {
+    return Row(
+      children: [
+        Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(icon, color: Colors.white, size: 20),
+        ),
+        const SizedBox(width: 16),
+        Text(
+          text,
+          style: TextStyle(
+            fontSize: 16,
+            color: Colors.white.withValues(alpha: 0.9),
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Tablet: Centered form with header
+  Widget _buildTabletLayout() {
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(40),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _buildCompactHeader(),
+            const SizedBox(height: 48),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 460),
+              child: _buildAuthForm(),
+            ),
+          ],
+        ),
       ),
+    );
+  }
+
+  /// Mobile: Scrollable single-column layout
+  Widget _buildMobileLayout() {
+    return SingleChildScrollView(
       child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                _isSignUpMode ? 'Create Account' : 'Welcome Back',
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
-                ),
+        padding: const EdgeInsets.fromLTRB(24, 48, 24, 32),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _buildMobileHeader(),
+            const SizedBox(height: 40),
+            _buildAuthForm(compact: true),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMobileHeader() {
+    return Column(
+      children: [
+        Container(
+          width: 64,
+          height: 64,
+          decoration: BoxDecoration(
+            color: AppColors.primary,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: const Icon(
+            Icons.local_hospital_rounded,
+            size: 32,
+            color: Colors.white,
+          ),
+        ),
+        const SizedBox(height: 20),
+        const Text(
+          'ClaimCare',
+          style: TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.w700,
+            color: AppColors.textPrimary,
+            letterSpacing: -0.5,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          'Claims Management',
+          style: TextStyle(
+            fontSize: 14,
+            color: AppColors.textSecondary.withValues(alpha: 0.8),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCompactHeader() {
+    return Column(
+      children: [
+        Container(
+          width: 72,
+          height: 72,
+          decoration: BoxDecoration(
+            color: AppColors.primary,
+            borderRadius: BorderRadius.circular(18),
+          ),
+          child: const Icon(
+            Icons.local_hospital_rounded,
+            size: 36,
+            color: Colors.white,
+          ),
+        ),
+        const SizedBox(height: 24),
+        const Text(
+          'ClaimCare',
+          style: TextStyle(
+            fontSize: 32,
+            fontWeight: FontWeight.w700,
+            color: AppColors.textPrimary,
+            letterSpacing: -0.5,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Insurance Claims Management',
+          style: TextStyle(
+            fontSize: 15,
+            color: AppColors.textSecondary.withValues(alpha: 0.8),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAuthForm({bool compact = false}) {
+    final isMobile = compact;
+    
+    return Form(
+      key: _formKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Title
+          Text(
+            _isSignUpMode ? 'Create Account' : 'Welcome Back',
+            style: TextStyle(
+              fontSize: isMobile ? 24 : 28,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textPrimary,
+              letterSpacing: -0.5,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            _isSignUpMode
+                ? 'Sign up to start managing claims'
+                : 'Sign in to continue',
+            style: TextStyle(
+              fontSize: 15,
+              color: AppColors.textSecondary.withValues(alpha: 0.85),
+            ),
+          ),
+          const SizedBox(height: 32),
+
+          // Error message
+          if (_errorMessage != null) ...[
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: AppColors.errorLight,
+                borderRadius: BorderRadius.circular(10),
               ),
-              const SizedBox(height: 8),
-              Text(
-                _isSignUpMode 
-                    ? 'Sign up to get started with ClaimCare'
-                    : 'Sign in to access your dashboard',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[600],
-                ),
-              ),
-              const SizedBox(height: 32),
-              
-              // Error message
-              if (_errorMessage != null) ...[
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.errorLight,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: AppColors.error.withValues(alpha: 0.3),
-                    ),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.error_outline_rounded,
+                    size: 20,
+                    color: AppColors.error,
                   ),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.error_outline,
-                        size: 20,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      _errorMessage!,
+                      style: const TextStyle(
+                        fontSize: 14,
                         color: AppColors.error,
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          _errorMessage!,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: AppColors.error,
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 24),
-              ],
-              
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+          ],
 
-              
-              // Name field (sign up only)
-              if (_isSignUpMode) ...[
-                TextFormField(
-                  controller: _nameController,
-                  textInputAction: TextInputAction.next,
-                  textCapitalization: TextCapitalization.words,
-                  decoration: const InputDecoration(
-                    labelText: 'Full Name',
-                    hintText: 'Enter your full name',
-                    prefixIcon: Icon(Icons.person_outlined),
-                  ),
+          // Name field (sign up only)
+          if (_isSignUpMode) ...[
+            _buildTextField(
+              controller: _nameController,
+              label: 'Full Name',
+              hint: 'Enter your name',
+              icon: Icons.person_outline_rounded,
+              textInputAction: TextInputAction.next,
+              textCapitalization: TextCapitalization.words,
+            ),
+            const SizedBox(height: 18),
+          ],
+
+          // Email field
+          _buildTextField(
+            controller: _emailController,
+            label: 'Email',
+            hint: 'you@example.com',
+            icon: Icons.email_outlined,
+            keyboardType: TextInputType.emailAddress,
+            textInputAction: TextInputAction.next,
+            validator: Validators.validateEmail,
+          ),
+          const SizedBox(height: 18),
+
+          // Password field
+          _buildTextField(
+            controller: _passwordController,
+            label: 'Password',
+            hint: _isSignUpMode ? 'Create a password' : 'Enter password',
+            icon: Icons.lock_outline_rounded,
+            obscureText: _obscurePassword,
+            textInputAction:
+                _isSignUpMode ? TextInputAction.next : TextInputAction.done,
+            validator: Validators.validatePassword,
+            onFieldSubmitted: _isSignUpMode ? null : (_) => _handleSubmit(),
+            suffixIcon: IconButton(
+              icon: Icon(
+                _obscurePassword
+                    ? Icons.visibility_outlined
+                    : Icons.visibility_off_outlined,
+                size: 20,
+                color: AppColors.textSecondary,
+              ),
+              onPressed: () =>
+                  setState(() => _obscurePassword = !_obscurePassword),
+            ),
+          ),
+
+          // Confirm password field (sign up only)
+          if (_isSignUpMode) ...[
+            const SizedBox(height: 18),
+            _buildTextField(
+              controller: _confirmPasswordController,
+              label: 'Confirm Password',
+              hint: 'Re-enter password',
+              icon: Icons.lock_outline_rounded,
+              obscureText: _obscureConfirmPassword,
+              textInputAction: TextInputAction.done,
+              validator: (value) {
+                if (value != _passwordController.text) {
+                  return 'Passwords do not match';
+                }
+                return null;
+              },
+              onFieldSubmitted: (_) => _handleSubmit(),
+              suffixIcon: IconButton(
+                icon: Icon(
+                  _obscureConfirmPassword
+                      ? Icons.visibility_outlined
+                      : Icons.visibility_off_outlined,
+                  size: 20,
+                  color: AppColors.textSecondary,
                 ),
-                const SizedBox(height: 20),
-              ],
-              
-              // Email field
-              TextFormField(
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-                textInputAction: TextInputAction.next,
-                validator: Validators.validateEmail,
-                decoration: const InputDecoration(
-                  labelText: 'Email Address',
-                  hintText: 'Enter your email',
-                  prefixIcon: Icon(Icons.email_outlined),
+                onPressed: () => setState(
+                    () => _obscureConfirmPassword = !_obscureConfirmPassword),
+              ),
+            ),
+          ],
+
+          // Forgot password (login only)
+          if (!_isSignUpMode) ...[
+            const SizedBox(height: 12),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: _showForgotPasswordDialog,
+                style: TextButton.styleFrom(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                ),
+                child: Text(
+                  'Forgot Password?',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: AppColors.primary.withValues(alpha: 0.9),
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
-              const SizedBox(height: 20),
-              
-              // Password field
-              TextFormField(
-                controller: _passwordController,
-                obscureText: _obscurePassword,
-                textInputAction: _isSignUpMode ? TextInputAction.next : TextInputAction.done,
-                validator: Validators.validatePassword,
-                onFieldSubmitted: _isSignUpMode ? null : (_) => _handleSubmit(),
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  hintText: _isSignUpMode ? 'Create a password' : 'Enter your password',
-                  prefixIcon: const Icon(Icons.lock_outlined),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _obscurePassword
-                          ? Icons.visibility_outlined
-                          : Icons.visibility_off_outlined,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _obscurePassword = !_obscurePassword;
-                      });
-                    },
-                  ),
-                ),
+            ),
+          ],
+
+          const SizedBox(height: 28),
+
+          // Submit button
+          FilledButton(
+            onPressed: _isLoading ? null : _handleSubmit,
+            style: FilledButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
               ),
-              
-              // Confirm password field (sign up only)
-              if (_isSignUpMode) ...[
-                const SizedBox(height: 20),
-                TextFormField(
-                  controller: _confirmPasswordController,
-                  obscureText: _obscureConfirmPassword,
-                  textInputAction: TextInputAction.done,
-                  validator: (value) {
-                    if (value != _passwordController.text) {
-                      return 'Passwords do not match';
-                    }
-                    return null;
-                  },
-                  onFieldSubmitted: (_) => _handleSubmit(),
-                  decoration: InputDecoration(
-                    labelText: 'Confirm Password',
-                    hintText: 'Re-enter your password',
-                    prefixIcon: const Icon(Icons.lock_outlined),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscureConfirmPassword
-                            ? Icons.visibility_outlined
-                            : Icons.visibility_off_outlined,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _obscureConfirmPassword = !_obscureConfirmPassword;
-                        });
-                      },
+            ),
+            child: _isLoading
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
                     ),
-                  ),
-                ),
-              ],
-              
-              // Forgot password link (login only)
-              if (!_isSignUpMode) ...[
-                const SizedBox(height: 12),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: _showForgotPasswordDialog,
-                    child: const Text('Forgot Password?'),
-                  ),
-                ),
-              ],
-              const SizedBox(height: 24),
-              
-              // Submit button
-              SizedBox(
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: _isLoading ? null : _handleSubmit,
-                  child: Text(
+                  )
+                : Text(
                     _isSignUpMode ? 'Create Account' : 'Sign In',
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
+          ),
+
+          const SizedBox(height: 24),
+
+          // Divider
+          Row(
+            children: [
+              Expanded(child: Divider(color: AppColors.border.withValues(alpha: 0.6))),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  'or',
+                  style: TextStyle(
+                    color: AppColors.textSecondary.withValues(alpha: 0.7),
+                    fontSize: 13,
+                  ),
                 ),
               ),
-              const SizedBox(height: 16),
-              
-              // Divider
-              Row(
-                children: [
-                  const Expanded(child: Divider()),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Text(
-                      'or',
-                      style: TextStyle(color: Colors.grey[500]),
-                    ),
-                  ),
-                  const Expanded(child: Divider()),
-                ],
+              Expanded(child: Divider(color: AppColors.border.withValues(alpha: 0.6))),
+            ],
+          ),
+
+          const SizedBox(height: 24),
+
+          // Google Sign-In
+          OutlinedButton.icon(
+            onPressed: _isLoading ? null : _handleGoogleSignIn,
+            icon: Image.network(
+              'https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg',
+              width: 20,
+              height: 20,
+              errorBuilder: (context, error, stackTrace) =>
+                  const Icon(Icons.g_mobiledata, size: 20),
+            ),
+            label: Text(_isSignUpMode ? 'Sign up with Google' : 'Sign in with Google'),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              side: BorderSide(color: AppColors.border.withValues(alpha: 0.8)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
               ),
-              const SizedBox(height: 16),
-              
-              // Google Sign-In button
-              _buildGoogleSignInButton(),
-              const SizedBox(height: 24),
-              
-              // Toggle sign up / sign in
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    _isSignUpMode 
-                        ? 'Already have an account? ' 
-                        : "Don't have an account? ",
-                    style: TextStyle(color: Colors.grey[600]),
-                  ),
-                  TextButton(
-                    onPressed: _toggleMode,
-                    child: Text(
-                      _isSignUpMode ? 'Sign In' : 'Sign Up',
-                      style: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                ],
+              foregroundColor: AppColors.textPrimary,
+            ),
+          ),
+
+          const SizedBox(height: 28),
+
+          // Toggle mode
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                _isSignUpMode
+                    ? 'Already have an account?'
+                    : "Don't have an account?",
+                style: TextStyle(
+                  color: AppColors.textSecondary.withValues(alpha: 0.85),
+                  fontSize: 14,
+                ),
               ),
-              
-              // Test credentials
-              if (!_isSignUpMode) ...[
-                const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.infoLight,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppColors.info.withValues(alpha: 0.3)),
+              TextButton(
+                onPressed: _toggleMode,
+                child: Text(
+                  _isSignUpMode ? 'Sign In' : 'Sign Up',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                ),
+              ),
+            ],
+          ),
+
+          // Demo credentials (login only)
+          if (!_isSignUpMode) ...[
+            const SizedBox(height: 24),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceVariant.withValues(alpha: 0.5),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: AppColors.border.withValues(alpha: 0.5),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
                     children: [
-                      Row(
-                        children: [
-                          Icon(Icons.info_outline, size: 16, color: AppColors.info),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Demo Credentials',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.info,
-                            ),
-                          ),
-                        ],
+                      Icon(
+                        Icons.lightbulb_outline_rounded,
+                        size: 16,
+                        color: AppColors.textSecondary,
                       ),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          const Text('Email: ', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
-                          SelectableText(
-                            'demo@claimcare.com',
-                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          const Text('Password: ', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
-                          SelectableText(
-                            'Demo@123',
-                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-                          ),
-                        ],
+                      const SizedBox(width: 8),
+                      Text(
+                        'Demo Account',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textSecondary,
+                        ),
                       ),
                     ],
                   ),
-                ),
-              ],
-            ],
-          ),
-        ),
+                  const SizedBox(height: 10),
+                  _buildCredentialRow('Email', 'demo@claimcare.com'),
+                  const SizedBox(height: 4),
+                  _buildCredentialRow('Password', 'Demo@123'),
+                ],
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }
 
-  Widget _buildGoogleSignInButton() {
-    return SizedBox(
-      height: 50,
-      child: OutlinedButton.icon(
-        onPressed: _isLoading ? null : _handleGoogleSignIn,
-        icon: Image.network(
-          'https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg',
-          width: 24,
-          height: 24,
-          errorBuilder: (context, error, stackTrace) => const Icon(
-            Icons.g_mobiledata,
-            size: 24,
-            color: AppColors.textPrimary,
-          ),
-        ),
-        label: Text(
-          _isSignUpMode ? 'Sign up with Google' : 'Sign in with Google',
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            color: AppColors.textPrimary,
-          ),
-        ),
-        style: OutlinedButton.styleFrom(
-          side: const BorderSide(color: AppColors.border),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFooter() {
-    return Column(
+  Widget _buildCredentialRow(String label, String value) {
+    return Row(
       children: [
         Text(
-          '© 2026 ClaimCare. All rights reserved.',
+          '$label: ',
           style: TextStyle(
             fontSize: 12,
-            color: Colors.grey[500],
+            color: AppColors.textSecondary.withValues(alpha: 0.8),
           ),
-          textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 8),
-        Text(
-          'Healthcare Insurance Management Solution',
-          style: TextStyle(
+        SelectableText(
+          value,
+          style: const TextStyle(
             fontSize: 12,
-            color: Colors.grey[400],
+            fontWeight: FontWeight.w600,
+            color: AppColors.textPrimary,
           ),
-          textAlign: TextAlign.center,
         ),
       ],
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required String hint,
+    required IconData icon,
+    TextInputType? keyboardType,
+    TextInputAction? textInputAction,
+    TextCapitalization textCapitalization = TextCapitalization.none,
+    bool obscureText = false,
+    String? Function(String?)? validator,
+    void Function(String)? onFieldSubmitted,
+    Widget? suffixIcon,
+  }) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: keyboardType,
+      textInputAction: textInputAction,
+      textCapitalization: textCapitalization,
+      obscureText: obscureText,
+      validator: validator,
+      onFieldSubmitted: onFieldSubmitted,
+      style: const TextStyle(fontSize: 15),
+      decoration: InputDecoration(
+        labelText: label,
+        hintText: hint,
+        prefixIcon: Icon(icon, size: 20),
+        suffixIcon: suffixIcon,
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      ),
     );
   }
 
@@ -552,16 +784,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Reset Password'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text(
+          'Reset Password',
+          style: TextStyle(fontWeight: FontWeight.w600),
+        ),
         content: Form(
           key: formKey,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text(
-                'Enter your email address and we\'ll send you a link to reset your password.',
-                style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
+              Text(
+                'Enter your email and we\'ll send you a reset link.',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: AppColors.textSecondary.withValues(alpha: 0.85),
+                ),
               ),
               const SizedBox(height: 20),
               TextFormField(
@@ -569,8 +808,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 keyboardType: TextInputType.emailAddress,
                 validator: Validators.validateEmail,
                 decoration: const InputDecoration(
-                  labelText: 'Email Address',
-                  prefixIcon: Icon(Icons.email_outlined),
+                  labelText: 'Email',
+                  prefixIcon: Icon(Icons.email_outlined, size: 20),
                 ),
               ),
             ],
@@ -581,7 +820,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             onPressed: () => Navigator.pop(context),
             child: const Text('Cancel'),
           ),
-          ElevatedButton(
+          FilledButton(
             onPressed: () async {
               if (formKey.currentState!.validate()) {
                 try {
@@ -591,11 +830,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   if (context.mounted) {
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          'Password reset email sent. Please check your inbox.',
-                        ),
+                      SnackBar(
+                        content: const Text('Reset link sent to your email'),
                         backgroundColor: AppColors.success,
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
                     );
                   }
@@ -605,13 +846,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       SnackBar(
                         content: Text(e.message),
                         backgroundColor: AppColors.error,
+                        behavior: SnackBarBehavior.floating,
                       ),
                     );
                   }
                 }
               }
             },
-            child: const Text('Send Reset Link'),
+            child: const Text('Send Link'),
           ),
         ],
       ),
