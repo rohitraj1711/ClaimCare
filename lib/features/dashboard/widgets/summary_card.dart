@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 
-/// Summary card widget for displaying dashboard metrics.
+/// Summary card widget for displaying dashboard metrics with modern flat design.
 class SummaryCard extends StatelessWidget {
   final String title;
   final String value;
@@ -23,60 +23,62 @@ class SummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: width ?? 280,
-      padding: const EdgeInsets.all(20),
+      width: width ?? 260,
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
+        borderRadius: BorderRadius.zero,
+        border: Border.all(color: AppColors.border.withValues(alpha: 0.2)),
       ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           // Icon container
           Container(
-            width: 52,
-            height: 52,
+            width: 44,
+            height: 44,
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(13),
+              color: color.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.zero,
             ),
             child: Icon(
               icon,
-              size: 26,
+              size: 22,
               color: color,
             ),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 14),
           // Content
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
                   title,
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 12,
                     fontWeight: FontWeight.w500,
-                    color: AppColors.textSecondary.withValues(alpha: 0.85),
+                    color: AppColors.textSecondary.withValues(alpha: 0.8),
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 3),
                 Text(
                   value,
                   style: TextStyle(
-                    fontSize: 24,
+                    fontSize: 22,
                     fontWeight: FontWeight.w700,
                     color: color,
                     letterSpacing: -0.5,
                   ),
                 ),
                 if (subtitle != null) ...[
-                  const SizedBox(height: 3),
+                  const SizedBox(height: 2),
                   Text(
                     subtitle!,
                     style: TextStyle(
-                      fontSize: 11,
-                      color: AppColors.textSecondary.withValues(alpha: 0.7),
+                      fontSize: 10,
+                      color: AppColors.textSecondary.withValues(alpha: 0.65),
+                      fontWeight: FontWeight.w500,
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -127,40 +129,31 @@ class _SummaryCardSkeletonState extends State<SummaryCardSkeleton>
       animation: _animation,
       builder: (context, child) {
         return Container(
-          width: 280,
-          padding: const EdgeInsets.all(20),
+          width: 260,
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: AppColors.surface,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: AppColors.border.withValues(alpha: 0.3)),
           ),
           child: Row(
             children: [
               Container(
-                width: 52,
-                height: 52,
+                width: 44,
+                height: 44,
                 decoration: BoxDecoration(
                   color: AppColors.border.withValues(alpha: _animation.value),
-                  borderRadius: BorderRadius.circular(13),
+                  borderRadius: BorderRadius.circular(8),
                 ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      width: 80,
-                      height: 12,
-                      decoration: BoxDecoration(
-                        color: AppColors.border.withValues(alpha: _animation.value),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Container(
-                      width: 120,
-                      height: 24,
+                      width: 70,
+                      height: 11,
                       decoration: BoxDecoration(
                         color: AppColors.border.withValues(alpha: _animation.value),
                         borderRadius: BorderRadius.circular(4),
@@ -169,7 +162,16 @@ class _SummaryCardSkeletonState extends State<SummaryCardSkeleton>
                     const SizedBox(height: 8),
                     Container(
                       width: 100,
-                      height: 10,
+                      height: 20,
+                      decoration: BoxDecoration(
+                        color: AppColors.border.withValues(alpha: _animation.value),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Container(
+                      width: 85,
+                      height: 9,
                       decoration: BoxDecoration(
                         color: AppColors.border.withValues(alpha: _animation.value * 0.6),
                         borderRadius: BorderRadius.circular(4),
@@ -202,10 +204,10 @@ class MiniSummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.surfaceVariant.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(10),
+        color: AppColors.surfaceVariant.withValues(alpha: 0.4),
+        borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -213,16 +215,16 @@ class MiniSummaryCard extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 11,
               fontWeight: FontWeight.w500,
-              color: AppColors.textSecondary.withValues(alpha: 0.8),
+              color: AppColors.textSecondary.withValues(alpha: 0.75),
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 3),
           Text(
             value,
             style: TextStyle(
-              fontSize: 17,
+              fontSize: 16,
               fontWeight: FontWeight.w600,
               color: valueColor ?? AppColors.textPrimary,
             ),

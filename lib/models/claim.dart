@@ -51,18 +51,16 @@ class Claim {
       patientName: data['patientName'] ?? '',
       policyNumber: data['policyNumber'] ?? '',
       hospitalName: data['hospitalName'] ?? '',
-      admissionDate: (data['admissionDate'] as Timestamp).toDate(),
-      dischargeDate: data['dischargeDate'] != null 
-          ? (data['dischargeDate'] as Timestamp).toDate() 
-          : null,
+      admissionDate: (data['admissionDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      dischargeDate: (data['dischargeDate'] as Timestamp?)?.toDate(),
       status: data['status'] ?? 'DRAFT',
       totalBillAmount: (data['totalBillAmount'] ?? 0).toDouble(),
       approvedAmount: (data['approvedAmount'] ?? 0).toDouble(),
       advancePaid: (data['advancePaid'] ?? 0).toDouble(),
       settledAmount: (data['settledAmount'] ?? 0).toDouble(),
       pendingAmount: (data['pendingAmount'] ?? 0).toDouble(),
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
-      updatedAt: (data['updatedAt'] as Timestamp).toDate(),
+      createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      updatedAt: (data['updatedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       createdBy: data['createdBy'],
       updatedBy: data['updatedBy'],
       rejectionReason: data['rejectionReason'],
@@ -111,7 +109,7 @@ class Claim {
   bool get canSettle => claimStatus.canSettle && pendingAmount > 0;
 
   /// Get remaining amount to settle
-  double get remainingToSettle => approvedAmount - settledAmount;
+  double get remainingToSettle => approvedAmount - settledAmount - advancePaid;
 
   /// Get status display label
   String get statusLabel => claimStatus.label;

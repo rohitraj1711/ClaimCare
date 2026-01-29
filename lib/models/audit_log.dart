@@ -28,7 +28,9 @@ class AuditLog {
       id: doc.id,
       claimId: claimId,
       action: data['action'] ?? '',
-      timestamp: (data['timestamp'] as Timestamp).toDate(),
+      timestamp: data['timestamp'] != null
+          ? (data['timestamp'] as Timestamp).toDate()
+          : DateTime.now(),
       performedBy: data['performedBy'] ?? '',
       performedByEmail: data['performedByEmail'],
       details: data['details'],

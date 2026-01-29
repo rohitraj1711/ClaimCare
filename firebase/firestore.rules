@@ -10,37 +10,6 @@ service cloud.firestore {
       return request.auth != null;
     }
     
-    // Get user ID
-    function userId() {
-      return request.auth.uid;
-    }
-    
-    // Check if this is a Cloud Functions request (has admin claim)
-    function isCloudFunction() {
-      return request.auth.token.admin == true;
-    }
-    
-    // Check if field is unchanged
-    function unchanged(field) {
-      return !(field in request.resource.data) || 
-             request.resource.data[field] == resource.data[field];
-    }
-    
-    // Check if creating new document (no existing data)
-    function isCreate() {
-      return resource == null;
-    }
-    
-    // Check if updating existing document
-    function isUpdate() {
-      return resource != null;
-    }
-    
-    // Valid claim statuses
-    function isValidStatus(status) {
-      return status in ['DRAFT', 'SUBMITTED', 'APPROVED', 'REJECTED', 'PARTIALLY_SETTLED'];
-    }
-    
     // ============================================
     // Claims Collection Rules
     // ============================================
@@ -48,35 +17,11 @@ service cloud.firestore {
       // Allow read for authenticated users
       allow read: if isAuthenticated();
       
-      // Allow create for authenticated users with required fields
-      allow create: if isAuthenticated()
-        && request.resource.data.status == 'DRAFT'
-        && request.resource.data.patientName is string
-        && request.resource.data.policyNumber is string
-        && request.resource.data.hospitalName is string
-        && request.resource.data.admissionDate is timestamp
-        && request.resource.data.totalBillAmount >= 0
-        && request.resource.data.approvedAmount == 0
-        && request.resource.data.settledAmount == 0
-        && request.resource.data.pendingAmount == 0;
+      // Allow create for authenticated users
+      allow create: if isAuthenticated();
       
-      // Allow update with restrictions
-      allow update: if isAuthenticated()
-        && (
-          // Cloud Functions can update anything
-          isCloudFunction()
-          ||
-          // Regular users can only update draft claims
-          // and cannot modify protected fields
-          (
-            resource.data.status == 'DRAFT'
-            && unchanged('status')
-            && unchanged('approvedAmount')
-            && unchanged('settledAmount')
-            && unchanged('pendingAmount')
-            && unchanged('rejectionReason')
-          )
-        );
+      // Allow update for authenticated users (required for client-side status updates)
+      allow update: if isAuthenticated();
       
       // Prevent direct deletion
       allow delete: if false;
@@ -88,18 +33,8 @@ service cloud.firestore {
         // Allow read for authenticated users
         allow read: if isAuthenticated();
         
-        // Allow create only for draft claims
-        allow create: if isAuthenticated()
-          && get(/databases/$(database)/documents/claims/$(claimId)).data.status == 'DRAFT'
-          && request.resource.data.type is string
-          && request.resource.data.amount > 0;
-        
-        // Allow update only for draft claims
-        allow update: if isAuthenticated()
-          && get(/databases/$(database)/documents/claims/$(claimId)).data.status == 'DRAFT';
-        
-        // Allow delete only for draft claims
-        allow delete: if isAuthenticated()
+        // Allow modifying bills only for draft claims
+        allow write: if isAuthenticated()
           && get(/databases/$(database)/documents/claims/$(claimId)).data.status == 'DRAFT';
       }
       
@@ -110,8 +45,8 @@ service cloud.firestore {
         // Allow read for authenticated users
         allow read: if isAuthenticated();
         
-        // Only Cloud Functions can create audit logs
-        allow create: if isCloudFunction();
+        // Allow authenticated users to create logs (since Cloud Functions are disabled)
+        allow create: if isAuthenticated();
         
         // Audit logs are immutable
         allow update, delete: if false;
@@ -119,7 +54,7 @@ service cloud.firestore {
     }
     
     // ============================================
-    // Users Collection Rules (for future RBAC)
+    // Users Collection Rules
     // ============================================
     match /users/{userId} {
       allow read: if isAuthenticated() && request.auth.uid == userId;

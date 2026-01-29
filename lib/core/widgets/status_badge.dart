@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
 
 /// Status badge widget for displaying claim status.
-/// Uses color-coded backgrounds based on status.
+/// Uses color-coded backgrounds based on status with modern flat design.
 class StatusBadge extends StatelessWidget {
   final String status;
   final bool large;
@@ -21,21 +21,24 @@ class StatusBadge extends StatelessWidget {
 
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: large ? 16 : 12,
-        vertical: large ? 8 : 4,
+        horizontal: large ? 12 : 8,
+        vertical: large ? 5 : 3,
       ),
       decoration: BoxDecoration(
         color: bgColor,
-        borderRadius: BorderRadius.circular(large ? 8 : 16),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
+        borderRadius: BorderRadius.zero, // Completely flat
+        border: Border.all(
+          color: color.withValues(alpha: 0.15),
+          width: 1,
+        ),
       ),
       child: Text(
         label,
         style: TextStyle(
           color: color,
-          fontSize: large ? 14 : 12,
+          fontSize: large ? 13 : 11,
           fontWeight: FontWeight.w600,
-          letterSpacing: 0.5,
+          letterSpacing: 0.3,
         ),
       ),
     );

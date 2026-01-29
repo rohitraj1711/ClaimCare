@@ -374,8 +374,8 @@ class _ClaimFormScreenState extends ConsumerState<ClaimFormScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
+        borderRadius: BorderRadius.zero,
+        border: Border.all(color: AppColors.border.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -386,8 +386,8 @@ class _ClaimFormScreenState extends ConsumerState<ClaimFormScreen> {
                 width: 32,
                 height: 32,
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  color: AppColors.primary.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.zero,
                 ),
                 child: Icon(icon, size: 18, color: AppColors.primary),
               ),
@@ -395,7 +395,7 @@ class _ClaimFormScreenState extends ConsumerState<ClaimFormScreen> {
               Text(
                 title,
                 style: const TextStyle(
-                  fontSize: 16,
+                  fontSize: 15,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -491,24 +491,25 @@ class _ClaimFormScreenState extends ConsumerState<ClaimFormScreen> {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          FilledButton(
+          FilledButton.icon(
             onPressed: _isSaving ? null : _saveClaim,
             style: FilledButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
             ),
-            child: _isSaving
+            icon: _isSaving
                 ? const SizedBox(
-                    height: 20,
-                    width: 20,
+                    height: 18,
+                    width: 18,
                     child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                   )
-                : Text(
-                    isEditing ? 'Update Claim' : 'Create Claim',
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                  ),
+                : const Icon(Icons.check_circle_outline, size: 18),
+            label: Text(
+              isEditing ? 'Update Claim' : 'Create Claim',
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+            ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
           OutlinedButton(
             onPressed: _isSaving ? null : () {
               if (isEditing) {
@@ -518,10 +519,10 @@ class _ClaimFormScreenState extends ConsumerState<ClaimFormScreen> {
               }
             },
             style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
             ),
-            child: const Text('Cancel'),
+            child: const Text('Cancel', style: TextStyle(fontSize: 14)),
           ),
         ],
       );
@@ -539,25 +540,28 @@ class _ClaimFormScreenState extends ConsumerState<ClaimFormScreen> {
             }
           },
           style: OutlinedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
           ),
-          child: const Text('Cancel'),
+          child: const Text('Cancel', style: TextStyle(fontSize: 14)),
         ),
-        const SizedBox(width: 16),
+        const SizedBox(width: 12),
         FilledButton.icon(
           onPressed: _isSaving ? null : _saveClaim,
           icon: _isSaving
               ? const SizedBox(
-                  height: 18,
-                  width: 18,
+                  height: 16,
+                  width: 16,
                   child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                 )
-              : const Icon(Icons.save_rounded, size: 20),
-          label: Text(isEditing ? 'Update Claim' : 'Create Claim'),
+              : const Icon(Icons.check_circle_outline, size: 18),
+          label: Text(
+            isEditing ? 'Update Claim' : 'Create Claim',
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          ),
           style: FilledButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
           ),
         ),
       ],

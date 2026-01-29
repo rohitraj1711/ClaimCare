@@ -90,9 +90,23 @@ class _ClaimDetailScreenState extends ConsumerState<ClaimDetailScreen>
             icon: const Icon(Icons.arrow_back_rounded),
             onPressed: () => context.go('/dashboard'),
           ),
-          title: Text(
-            isMobile ? claim.patientName : 'Claim #${claim.id.substring(0, 8)}',
-            style: const TextStyle(fontWeight: FontWeight.w600),
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                isMobile ? 'Claim Details' : claim.patientName,
+                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+              ),
+              if (!isMobile)
+                Text(
+                  'ID: ${claim.id}',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w400,
+                    fontSize: 11,
+                    color: AppColors.textSecondary.withValues(alpha: 0.7),
+                  ),
+                ),
+            ],
           ),
           actions: [
             if (claim.isEditable)
@@ -139,11 +153,14 @@ class _ClaimDetailScreenState extends ConsumerState<ClaimDetailScreen>
 
   Widget _buildStatusActionsBar(Claim claim, bool isMobile) {
     return Container(
-      padding: EdgeInsets.all(isMobile ? 14 : 16),
+      padding: EdgeInsets.symmetric(
+        horizontal: isMobile ? 16 : 20,
+        vertical: isMobile ? 12 : 14,
+      ),
       decoration: BoxDecoration(
         color: AppColors.surface,
         border: Border(
-          bottom: BorderSide(color: AppColors.border.withValues(alpha: 0.5)),
+          bottom: BorderSide(color: AppColors.border.withValues(alpha: 0.3)),
         ),
       ),
       child: isMobile
@@ -208,11 +225,11 @@ class _ClaimDetailScreenState extends ConsumerState<ClaimDetailScreen>
       buttons.add(
         FilledButton.icon(
           onPressed: () => _showSubmitDialog(claim),
-          icon: const Icon(Icons.send_rounded, size: 18),
+          icon: const Icon(Icons.send_rounded, size: 16),
           label: const Text('Submit'),
           style: FilledButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 11),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
           ),
         ),
       );
@@ -224,24 +241,24 @@ class _ClaimDetailScreenState extends ConsumerState<ClaimDetailScreen>
           onPressed: () => _showRejectDialog(claim),
           style: OutlinedButton.styleFrom(
             foregroundColor: AppColors.error,
-            side: const BorderSide(color: AppColors.error),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            side: BorderSide(color: AppColors.error.withValues(alpha: 0.3)),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
           ),
-          icon: const Icon(Icons.close_rounded, size: 18),
+          icon: const Icon(Icons.close_rounded, size: 16),
           label: const Text('Reject'),
         ),
       );
-      buttons.add(const SizedBox(width: 12));
+      buttons.add(const SizedBox(width: 10));
       buttons.add(
         FilledButton.icon(
           onPressed: () => _showApproveDialog(claim),
           style: FilledButton.styleFrom(
             backgroundColor: AppColors.statusApproved,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 11),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
           ),
-          icon: const Icon(Icons.check_rounded, size: 18),
+          icon: const Icon(Icons.check_rounded, size: 16),
           label: const Text('Approve'),
         ),
       );
@@ -253,10 +270,10 @@ class _ClaimDetailScreenState extends ConsumerState<ClaimDetailScreen>
           onPressed: () => _showSettleDialog(claim),
           style: FilledButton.styleFrom(
             backgroundColor: AppColors.secondary,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 11),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
           ),
-          icon: const Icon(Icons.payments_rounded, size: 18),
+          icon: const Icon(Icons.account_balance_wallet_rounded, size: 16),
           label: const Text('Settle'),
         ),
       );
@@ -304,13 +321,13 @@ class _ClaimDetailScreenState extends ConsumerState<ClaimDetailScreen>
   Widget _buildIconActionButton(IconData icon, Color color, VoidCallback onTap) {
     return Material(
       color: color,
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: BorderRadius.circular(4),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(4),
         child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Icon(icon, color: Colors.white, size: 20),
+          padding: const EdgeInsets.all(9),
+          child: Icon(icon, color: Colors.white, size: 18),
         ),
       ),
     );
@@ -322,54 +339,210 @@ class _ClaimDetailScreenState extends ConsumerState<ClaimDetailScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildInfoCard(
-            title: 'Patient',
-            icon: Icons.person_outline_rounded,
-            children: [
-              _buildInfoRow('Name', claim.patientName),
-              _buildInfoRow('Policy', claim.policyNumber),
-            ],
-          ),
-          SizedBox(height: isMobile ? 14 : 20),
-          _buildInfoCard(
-            title: 'Hospital',
-            icon: Icons.local_hospital_outlined,
-            children: [
-              _buildInfoRow('Name', claim.hospitalName),
-            ],
-          ),
-          SizedBox(height: isMobile ? 14 : 20),
-          _buildInfoCard(
-            title: 'Dates',
-            icon: Icons.calendar_today_outlined,
-            children: [
-              _buildInfoRow('Admission', Formatters.formatDate(claim.admissionDate)),
-              _buildInfoRow(
-                'Discharge',
-                claim.dischargeDate != null
-                    ? Formatters.formatDate(claim.dischargeDate!)
-                    : 'Not discharged',
-              ),
-              if (claim.dischargeDate != null)
-                _buildInfoRow(
-                  'Duration',
-                  '${claim.dischargeDate!.difference(claim.admissionDate).inDays} days',
+          // Main claim info card
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.zero,
+              border: Border.all(color: AppColors.border.withValues(alpha: 0.2)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Claim ID
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.zero,
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.fingerprint, size: 14, color: AppColors.primary),
+                          const SizedBox(width: 6),
+                          Text(
+                            'CLAIM ID',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.primary.withValues(alpha: 0.8),
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-            ],
-          ),
-          SizedBox(height: isMobile ? 14 : 20),
-          _buildInfoCard(
-            title: 'Details',
-            icon: Icons.info_outline_rounded,
-            children: [
-              _buildInfoRow('Claim ID', claim.id),
-              _buildInfoRow('Created', Formatters.formatDateTime(claim.createdAt)),
-              if (claim.notes != null && claim.notes!.isNotEmpty)
-                _buildInfoRow('Notes', claim.notes!),
-            ],
+                const SizedBox(height: 8),
+                SelectableText(
+                  claim.id,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary.withValues(alpha: 0.9),
+                    fontFamily: 'monospace',
+                  ),
+                ),
+                const SizedBox(height: 20),
+                const Divider(height: 1),
+                const SizedBox(height: 20),
+                
+                // Two column layout for desktop, single for mobile
+                if (isMobile) ..._buildMobileInfoRows(claim) else ..._buildDesktopInfoGrid(claim),
+              ],
+            ),
           ),
         ],
       ),
+    );
+  }
+
+  List<Widget> _buildMobileInfoRows(Claim claim) {
+    return [
+      _buildDetailRow('Patient Name', claim.patientName, Icons.person_outline),
+      _buildDetailRow('Policy Number', claim.policyNumber, Icons.credit_card),
+      _buildDetailRow('Hospital', claim.hospitalName, Icons.local_hospital_outlined),
+      _buildDetailRow('Admission Date', Formatters.formatDate(claim.admissionDate), Icons.calendar_today_outlined),
+      if (claim.dischargeDate != null)
+        _buildDetailRow('Discharge Date', Formatters.formatDate(claim.dischargeDate!), Icons.event_available_outlined),
+      if (claim.dischargeDate != null)
+        _buildDetailRow('Duration', '${claim.dischargeDate!.difference(claim.admissionDate).inDays} days', Icons.timelapse_outlined),
+      _buildDetailRow('Created', Formatters.formatDateTime(claim.createdAt), Icons.access_time_outlined),
+      if (claim.notes != null && claim.notes!.isNotEmpty) ...[
+        const SizedBox(height: 12),
+        const Divider(height: 1),
+        const SizedBox(height: 12),
+        _buildNotesSection(claim.notes!),
+      ],
+    ];
+  }
+
+  List<Widget> _buildDesktopInfoGrid(Claim claim) {
+    return [
+      Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(child: _buildDetailRow('Patient Name', claim.patientName, Icons.person_outline)),
+          const SizedBox(width: 32),
+          Expanded(child: _buildDetailRow('Policy Number', claim.policyNumber, Icons.credit_card)),
+        ],
+      ),
+      Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(child: _buildDetailRow('Hospital', claim.hospitalName, Icons.local_hospital_outlined)),
+          const SizedBox(width: 32),
+          Expanded(child: _buildDetailRow('Created', Formatters.formatDateTime(claim.createdAt), Icons.access_time_outlined)),
+        ],
+      ),
+      Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(child: _buildDetailRow('Admission Date', Formatters.formatDate(claim.admissionDate), Icons.calendar_today_outlined)),
+          const SizedBox(width: 32),
+          Expanded(
+            child: claim.dischargeDate != null
+                ? _buildDetailRow('Discharge Date', Formatters.formatDate(claim.dischargeDate!), Icons.event_available_outlined)
+                : _buildDetailRow('Discharge Date', 'Not discharged', Icons.event_busy_outlined),
+          ),
+        ],
+      ),
+      if (claim.dischargeDate != null)
+        Row(
+          children: [
+            Expanded(child: _buildDetailRow('Duration', '${claim.dischargeDate!.difference(claim.admissionDate).inDays} days', Icons.timelapse_outlined)),
+            const SizedBox(width: 32),
+            const Expanded(child: SizedBox()),
+          ],
+        ),
+      if (claim.notes != null && claim.notes!.isNotEmpty) ...[
+        const SizedBox(height: 12),
+        const Divider(height: 1),
+        const SizedBox(height: 12),
+        _buildNotesSection(claim.notes!),
+      ],
+    ];
+  }
+
+  Widget _buildDetailRow(String label, String value, IconData icon) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 16, color: AppColors.textSecondary.withValues(alpha: 0.6)),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: AppColors.textSecondary.withValues(alpha: 0.7),
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: 0.2,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNotesSection(String notes) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(Icons.notes_outlined, size: 16, color: AppColors.textSecondary.withValues(alpha: 0.6)),
+            const SizedBox(width: 10),
+            Text(
+              'Notes',
+              style: TextStyle(
+                fontSize: 11,
+                color: AppColors.textSecondary.withValues(alpha: 0.7),
+                fontWeight: FontWeight.w500,
+                letterSpacing: 0.2,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: AppColors.surfaceVariant.withValues(alpha: 0.3),
+            borderRadius: BorderRadius.zero,
+          ),
+          child: Text(
+            notes,
+            style: TextStyle(
+              fontSize: 13,
+              color: AppColors.textPrimary.withValues(alpha: 0.85),
+              height: 1.5,
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -456,43 +629,43 @@ class _ClaimDetailScreenState extends ConsumerState<ClaimDetailScreen>
 
   Widget _buildBillCard(Claim claim, Bill bill, bool isMobile) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(14),
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
+        borderRadius: BorderRadius.zero,
+        border: Border.all(color: AppColors.border.withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [
           Container(
-            width: 40,
-            height: 40,
+            width: 36,
+            height: 36,
             decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(10),
+              color: AppColors.primary.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.zero,
             ),
             child: Icon(
               _getBillTypeIcon(bill.type),
-              size: 20,
+              size: 18,
               color: AppColors.primary,
             ),
           ),
-          const SizedBox(width: 14),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   bill.typeLabel,
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
                 ),
                 if (bill.description != null && bill.description!.isNotEmpty)
                   Text(
                     bill.description!,
                     style: TextStyle(
-                      fontSize: 12,
-                      color: AppColors.textSecondary.withValues(alpha: 0.8),
+                      fontSize: 11,
+                      color: AppColors.textSecondary.withValues(alpha: 0.7),
                     ),
                   ),
               ],
@@ -500,22 +673,24 @@ class _ClaimDetailScreenState extends ConsumerState<ClaimDetailScreen>
           ),
           Text(
             Formatters.formatCurrency(bill.amount),
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
           ),
           if (claim.isEditable) ...[
-            const SizedBox(width: 8),
+            const SizedBox(width: 4),
             IconButton(
-              icon: Icon(Icons.edit_rounded, size: 18, color: AppColors.textSecondary),
+              icon: Icon(Icons.edit_rounded, size: 16, color: AppColors.textSecondary),
               onPressed: () => _showEditBillDialog(claim, bill),
               tooltip: 'Edit',
               visualDensity: VisualDensity.compact,
+              padding: const EdgeInsets.all(8),
             ),
             IconButton(
-              icon: const Icon(Icons.delete_rounded, size: 18),
+              icon: const Icon(Icons.delete_rounded, size: 16),
               onPressed: () => _showDeleteBillDialog(claim, bill),
               tooltip: 'Delete',
               color: AppColors.error,
               visualDensity: VisualDensity.compact,
+              padding: const EdgeInsets.all(8),
             ),
           ],
         ],
@@ -545,11 +720,11 @@ class _ClaimDetailScreenState extends ConsumerState<ClaimDetailScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: AppColors.surface,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
+              borderRadius: BorderRadius.zero,
+              border: Border.all(color: AppColors.border.withValues(alpha: 0.2)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -557,36 +732,36 @@ class _ClaimDetailScreenState extends ConsumerState<ClaimDetailScreen>
                 Row(
                   children: [
                     Container(
-                      width: 36,
-                      height: 36,
+                      width: 32,
+                      height: 32,
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(9),
+                        color: AppColors.primary.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.zero,
                       ),
                       child: const Icon(Icons.account_balance_wallet_rounded,
-                          color: AppColors.primary, size: 20),
+                          color: AppColors.primary, size: 18),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 10),
                     const Text(
-                      'Summary',
-                      style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+                      'Financial Summary',
+                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
                     ),
                   ],
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
                 _buildFinancialRow('Total Bill', claim.totalBillAmount, AppColors.primary),
-                const Divider(height: 28),
+                const Divider(height: 20),
                 _buildFinancialRow('Advance Paid', claim.advancePaid, AppColors.textSecondary,
                     prefix: '(-) '),
-                const SizedBox(height: 12),
+                const SizedBox(height: 10),
                 _buildFinancialRow(
                   'Approved',
                   claim.approvedAmount,
                   claim.approvedAmount > 0 ? AppColors.statusApproved : AppColors.textSecondary,
                 ),
-                const Divider(height: 28),
+                const Divider(height: 20),
                 _buildFinancialRow('Settled', claim.settledAmount, AppColors.secondary),
-                const SizedBox(height: 12),
+                const SizedBox(height: 10),
                 _buildFinancialRow(
                   'Pending',
                   claim.pendingAmount,
@@ -597,45 +772,46 @@ class _ClaimDetailScreenState extends ConsumerState<ClaimDetailScreen>
             ),
           ),
           if (claim.approvedAmount > 0) ...[
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             Container(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: AppColors.surface,
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppColors.border.withValues(alpha: 0.3)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
                     'Settlement Progress',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(4),
                     child: LinearProgressIndicator(
-                      value: claim.settledAmount / claim.approvedAmount,
-                      backgroundColor: AppColors.border.withValues(alpha: 0.5),
+                      value: (claim.settledAmount + claim.advancePaid) /
+                          claim.approvedAmount,
+                      backgroundColor: AppColors.border.withValues(alpha: 0.3),
                       color: AppColors.secondary,
-                      minHeight: 8,
+                      minHeight: 6,
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        '${Formatters.formatPercentage(Formatters.calculatePercentage(claim.settledAmount, claim.approvedAmount))} Complete',
+                        '${Formatters.formatPercentage(Formatters.calculatePercentage(claim.settledAmount + claim.advancePaid, claim.approvedAmount))} Complete',
                         style: const TextStyle(
-                          fontSize: 14,
+                          fontSize: 13,
                           color: AppColors.secondary,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                       Text(
-                        '${Formatters.formatCurrency(claim.settledAmount)} / ${Formatters.formatCurrency(claim.approvedAmount)}',
+                        '${Formatters.formatCurrency(claim.settledAmount + claim.advancePaid)} / ${Formatters.formatCurrency(claim.approvedAmount)}',
                         style: TextStyle(
                           fontSize: 13,
                           color: AppColors.textSecondary.withValues(alpha: 0.8),
@@ -654,26 +830,29 @@ class _ClaimDetailScreenState extends ConsumerState<ClaimDetailScreen>
 
   Widget _buildFinancialRow(String label, double amount, Color color,
       {String prefix = '', bool isBold = false}) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: isBold ? 15 : 14,
-            fontWeight: isBold ? FontWeight.w600 : FontWeight.w400,
-            color: AppColors.textSecondary.withValues(alpha: 0.85),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: isBold ? 14 : 13,
+              fontWeight: isBold ? FontWeight.w600 : FontWeight.w500,
+              color: AppColors.textSecondary.withValues(alpha: 0.8),
+            ),
           ),
-        ),
-        Text(
-          '$prefix${Formatters.formatCurrency(amount)}',
-          style: TextStyle(
-            fontSize: isBold ? 20 : 16,
-            fontWeight: isBold ? FontWeight.w700 : FontWeight.w600,
-            color: color,
+          Text(
+            '$prefix${Formatters.formatCurrency(amount)}',
+            style: TextStyle(
+              fontSize: isBold ? 18 : 15,
+              fontWeight: isBold ? FontWeight.w700 : FontWeight.w600,
+              color: color,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -703,37 +882,52 @@ class _ClaimDetailScreenState extends ConsumerState<ClaimDetailScreen>
   }
 
   Widget _buildAuditLogItem(AuditLog log, {bool isFirst = false, bool isLast = false}) {
+    final actionColor = _getAuditActionColor(log.auditAction);
+    
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Column(
           children: [
             Container(
-              width: 12,
-              height: 12,
+              width: 14,
+              height: 14,
               decoration: BoxDecoration(
-                color: isFirst ? AppColors.primary : AppColors.border,
+                color: actionColor.withValues(alpha: 0.15),
                 shape: BoxShape.circle,
+                border: Border.all(color: actionColor, width: 2),
               ),
+              child: isFirst
+                  ? Center(
+                      child: Container(
+                        width: 4,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: actionColor,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    )
+                  : null,
             ),
             if (!isLast)
               Container(
-                width: 2,
-                height: 56,
-                color: AppColors.border.withValues(alpha: 0.5),
+                width: 1.5,
+                height: 52,
+                color: AppColors.border.withValues(alpha: 0.25),
               ),
           ],
         ),
-        const SizedBox(width: 14),
+        const SizedBox(width: 12),
         Expanded(
           child: Padding(
             padding: const EdgeInsets.only(bottom: 12),
             child: Container(
-              padding: const EdgeInsets.all(14),
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: AppColors.surface,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
+                borderRadius: BorderRadius.zero,
+                border: Border.all(color: AppColors.border.withValues(alpha: 0.2)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -741,15 +935,22 @@ class _ClaimDetailScreenState extends ConsumerState<ClaimDetailScreen>
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        log.actionLabel,
-                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                      Expanded(
+                        child: Text(
+                          log.actionLabel,
+                          style: TextStyle(
+                            fontSize: 13, 
+                            fontWeight: FontWeight.w600,
+                            color: actionColor,
+                          ),
+                        ),
                       ),
                       Text(
                         Formatters.formatRelativeTime(log.timestamp),
                         style: TextStyle(
-                          fontSize: 12,
-                          color: AppColors.textSecondary.withValues(alpha: 0.7),
+                          fontSize: 11,
+                          color: AppColors.textSecondary.withValues(alpha: 0.6),
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ],
@@ -759,18 +960,27 @@ class _ClaimDetailScreenState extends ConsumerState<ClaimDetailScreen>
                     Text(
                       log.details!,
                       style: TextStyle(
-                        fontSize: 13,
-                        color: AppColors.textSecondary.withValues(alpha: 0.85),
+                        fontSize: 12,
+                        color: AppColors.textPrimary.withValues(alpha: 0.85),
                       ),
                     ),
                   ],
-                  const SizedBox(height: 4),
-                  Text(
-                    'by ${log.performedByEmail ?? log.performedBy}',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: AppColors.textSecondary.withValues(alpha: 0.6),
-                    ),
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      Icon(Icons.person_outline_rounded, size: 12, color: AppColors.textSecondary.withValues(alpha: 0.5)),
+                      const SizedBox(width: 3),
+                      Expanded(
+                        child: Text(
+                          'by ${log.performedByEmail ?? log.performedBy}',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: AppColors.textSecondary.withValues(alpha: 0.6),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -781,17 +991,38 @@ class _ClaimDetailScreenState extends ConsumerState<ClaimDetailScreen>
     );
   }
 
+  Color _getAuditActionColor(AuditAction action) {
+    switch (action) {
+      case AuditAction.created:
+        return AppColors.info;
+      case AuditAction.updated:
+        return AppColors.textSecondary;
+      case AuditAction.submitted:
+        return Colors.orange; // Custom for visibility
+      case AuditAction.approved:
+        return AppColors.statusApproved;
+      case AuditAction.rejected:
+        return AppColors.error;
+      case AuditAction.settled:
+        return AppColors.secondary;
+      case AuditAction.billAdded:
+      case AuditAction.billUpdated:
+      case AuditAction.billDeleted:
+        return Colors.blueGrey;
+    }
+  }
+
   Widget _buildInfoCard({
     required String title,
     required IconData icon,
     required List<Widget> children,
   }) {
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
+        borderRadius: BorderRadius.zero, // Flat rectangular
+        border: Border.all(color: AppColors.border.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -799,22 +1030,22 @@ class _ClaimDetailScreenState extends ConsumerState<ClaimDetailScreen>
           Row(
             children: [
               Container(
-                width: 32,
-                height: 32,
+                width: 28,
+                height: 28,
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  color: AppColors.primary.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.zero, // Square
                 ),
-                child: Icon(icon, size: 18, color: AppColors.primary),
+                child: Icon(icon, size: 16, color: AppColors.primary),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 10),
               Text(
                 title,
-                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           ...children,
         ],
       ),
@@ -823,24 +1054,29 @@ class _ClaimDetailScreenState extends ConsumerState<ClaimDetailScreen>
 
   Widget _buildInfoRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 100,
+            width: 90,
             child: Text(
               label,
               style: TextStyle(
-                fontSize: 13,
-                color: AppColors.textSecondary.withValues(alpha: 0.85),
+                fontSize: 12,
+                color: AppColors.textSecondary.withValues(alpha: 0.8),
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: AppColors.textPrimary,
+              ),
             ),
           ),
         ],

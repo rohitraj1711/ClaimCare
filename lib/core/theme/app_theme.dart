@@ -71,14 +71,14 @@ class AppTheme {
         ),
       ),
 
-      // Card theme - flat with subtle border
+      // Card theme - true flat design with NO rounded corners
       cardTheme: CardThemeData(
         elevation: 0,
         color: AppColors.surface,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(14),
-          side: BorderSide(color: AppColors.border.withValues(alpha: 0.5)),
+          borderRadius: BorderRadius.zero, // Completely flat, no rounding
+          side: BorderSide(color: AppColors.border.withValues(alpha: 0.2)),
         ),
         margin: EdgeInsets.zero,
       ),
@@ -89,16 +89,16 @@ class AppTheme {
         surfaceTintColor: Colors.transparent,
         elevation: 8,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(12),
         ),
         titleTextStyle: textTheme.headlineSmall?.copyWith(
           color: AppColors.textPrimary,
           fontWeight: FontWeight.w600,
-          fontSize: 20,
+          fontSize: 19,
         ),
         contentTextStyle: textTheme.bodyMedium?.copyWith(
           color: AppColors.textSecondary,
-          fontSize: 15,
+          fontSize: 14,
         ),
       ),
 
@@ -108,13 +108,13 @@ class AppTheme {
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
           elevation: 0,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(4), // Minimal rounding
           ),
           textStyle: textTheme.labelLarge?.copyWith(
             fontWeight: FontWeight.w600,
-            fontSize: 15,
+            fontSize: 14,
           ),
           disabledBackgroundColor: AppColors.border,
           disabledForegroundColor: AppColors.textSecondary,
@@ -127,13 +127,13 @@ class AppTheme {
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
           elevation: 0,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(4),
           ),
           textStyle: textTheme.labelLarge?.copyWith(
             fontWeight: FontWeight.w600,
-            fontSize: 15,
+            fontSize: 14,
           ),
         ),
       ),
@@ -142,14 +142,14 @@ class AppTheme {
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.textPrimary,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-          side: BorderSide(color: AppColors.border.withValues(alpha: 0.8)),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          side: BorderSide(color: AppColors.border.withValues(alpha: 0.5)),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(4),
           ),
           textStyle: textTheme.labelLarge?.copyWith(
             fontWeight: FontWeight.w500,
-            fontSize: 15,
+            fontSize: 14,
           ),
         ),
       ),
@@ -287,7 +287,7 @@ class AppTheme {
         foregroundColor: Colors.white,
         elevation: 2,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(12),
         ),
       ),
 

@@ -214,30 +214,30 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     Color color,
   ) {
     return Container(
-      width: 150,
-      padding: const EdgeInsets.all(16),
+      width: 140,
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
+        borderRadius: BorderRadius.zero,
+        border: Border.all(color: AppColors.border.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 36,
-            height: 36,
+            width: 32,
+            height: 32,
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(9),
+              color: color.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.zero,
             ),
-            child: Icon(icon, size: 20, color: color),
+            child: Icon(icon, size: 18, color: color),
           ),
           const Spacer(),
           Text(
             value,
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 17,
               fontWeight: FontWeight.w700,
               color: color,
             ),
@@ -246,8 +246,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           Text(
             title,
             style: TextStyle(
-              fontSize: 12,
-              color: AppColors.textSecondary.withValues(alpha: 0.8),
+              fontSize: 11,
+              color: AppColors.textSecondary.withValues(alpha: 0.75),
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],
@@ -336,7 +337,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         Text(
           'Claims',
           style: TextStyle(
-            fontSize: isMobile ? 18 : 20,
+            fontSize: isMobile ? 17 : 19,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -344,12 +345,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         if (!isMobile)
           FilledButton.icon(
             onPressed: () => context.go('/claims/create'),
-            icon: const Icon(Icons.add_rounded, size: 20),
+            icon: const Icon(Icons.add_rounded, size: 18),
             label: const Text('New Claim'),
             style: FilledButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 11),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(8),
               ),
             ),
           ),
@@ -484,19 +485,20 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         });
       },
       backgroundColor: AppColors.surface,
-      selectedColor: AppColors.primary.withValues(alpha: 0.12),
+      selectedColor: AppColors.primary.withValues(alpha: 0.1),
       checkmarkColor: AppColors.primary,
       labelStyle: TextStyle(
-        fontSize: 13,
+        fontSize: 12,
         fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
         color: isSelected ? AppColors.primary : AppColors.textPrimary,
       ),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         side: BorderSide(
           color: isSelected
               ? AppColors.primary.withValues(alpha: 0.3)
-              : AppColors.border.withValues(alpha: 0.5),
+              : AppColors.border.withValues(alpha: 0.3),
         ),
       ),
     );
@@ -549,12 +551,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     return GestureDetector(
       onTap: () => context.go('/claims/${claim.id}'),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(16),
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: AppColors.surface,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
+          borderRadius: BorderRadius.zero,
+          border: Border.all(color: AppColors.border.withValues(alpha: 0.2)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -566,52 +568,55 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   child: Text(
                     claim.patientName,
                     style: const TextStyle(
-                      fontSize: 16,
+                      fontSize: 15,
                       fontWeight: FontWeight.w600,
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
+                const SizedBox(width: 8),
                 StatusBadge(status: claim.status),
               ],
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 8),
             // Policy and hospital
             Row(
               children: [
                 Icon(
-                  Icons.policy_outlined,
-                  size: 14,
-                  color: AppColors.textSecondary.withValues(alpha: 0.7),
+                  Icons.credit_card,
+                  size: 13,
+                  color: AppColors.textSecondary.withValues(alpha: 0.6),
                 ),
-                const SizedBox(width: 6),
+                const SizedBox(width: 5),
                 Text(
                   claim.policyNumber,
                   style: TextStyle(
-                    fontSize: 13,
-                    color: AppColors.textSecondary.withValues(alpha: 0.85),
+                    fontSize: 12,
+                    color: AppColors.textSecondary.withValues(alpha: 0.8),
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: 14),
                 Icon(
                   Icons.local_hospital_outlined,
-                  size: 14,
-                  color: AppColors.textSecondary.withValues(alpha: 0.7),
+                  size: 13,
+                  color: AppColors.textSecondary.withValues(alpha: 0.6),
                 ),
-                const SizedBox(width: 6),
+                const SizedBox(width: 5),
                 Expanded(
                   child: Text(
                     claim.hospitalName,
                     style: TextStyle(
-                      fontSize: 13,
-                      color: AppColors.textSecondary.withValues(alpha: 0.85),
+                      fontSize: 12,
+                      color: AppColors.textSecondary.withValues(alpha: 0.8),
+                      fontWeight: FontWeight.w500,
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 10),
             // Bottom row: Amount and date
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -619,7 +624,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 Text(
                   Formatters.formatCurrency(claim.totalBillAmount),
                   style: const TextStyle(
-                    fontSize: 17,
+                    fontSize: 16,
                     fontWeight: FontWeight.w700,
                     color: AppColors.primary,
                   ),
@@ -627,8 +632,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 Text(
                   Formatters.formatShortDate(claim.admissionDate),
                   style: TextStyle(
-                    fontSize: 13,
-                    color: AppColors.textSecondary.withValues(alpha: 0.7),
+                    fontSize: 12,
+                    color: AppColors.textSecondary.withValues(alpha: 0.65),
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
@@ -643,17 +649,17 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
+        borderRadius: BorderRadius.zero,
+        border: Border.all(color: AppColors.border.withValues(alpha: 0.2)),
       ),
       child: Column(
         children: [
           // Table header
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
             decoration: BoxDecoration(
-              color: AppColors.surfaceVariant.withValues(alpha: 0.5),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
+              color: AppColors.surfaceVariant.withValues(alpha: 0.3),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
             ),
             child: Row(
               children: [
@@ -663,7 +669,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 _buildTableHeader('Admission', flex: 1),
                 _buildTableHeader('Amount', flex: 1, align: TextAlign.right),
                 _buildTableHeader('Status', flex: 1, align: TextAlign.center),
-                const SizedBox(width: 48),
+                const SizedBox(width: 40),
               ],
             ),
           ),
@@ -680,10 +686,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       child: Text(
         text,
         style: TextStyle(
-          fontSize: 12,
+          fontSize: 11,
           fontWeight: FontWeight.w600,
-          color: AppColors.textSecondary.withValues(alpha: 0.8),
-          letterSpacing: 0.3,
+          color: AppColors.textSecondary.withValues(alpha: 0.75),
+          letterSpacing: 0.2,
         ),
         textAlign: align,
       ),
